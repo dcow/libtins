@@ -38,6 +38,7 @@
 #include "ip_address.h"
 #include "ipv6_address.h"
 #include "hw_address.h"
+#include "endianness.h"
 
 namespace Tins {
 namespace Memory {
@@ -71,6 +72,9 @@ public:
     }
 
     void skip(uint32_t size) {
+        if (TINS_UNLIKELY(size > size_)) {
+            throw malformed_packet();
+        }
         buffer_ += size;
         size_ -= size;
     }
@@ -84,6 +88,16 @@ public:
         T output;
         read(output);
         return output;
+    }
+
+    template <typename T>
+    T read_le() {
+        return Endian::le_to_host(read<T>());
+    }
+
+    template <typename T>
+    T read_be() {
+        return Endian::be_to_host(read<T>());
     }
 
     template <typename T>
@@ -150,7 +164,14 @@ public:
     : buffer_(buffer), size_(total_sz) {
     }
 
+    OutputMemoryStream(std::vector<uint8_t>& buffer)
+    : buffer_(&buffer[0]), size_(buffer.size()) {
+    }
+
     void skip(uint32_t size) {
+        if (TINS_UNLIKELY(size > size_)) {
+            throw malformed_packet();
+        }
         buffer_ += size;
         size_ -= size;
     }
@@ -162,6 +183,16 @@ public:
         }
         write_value(buffer_, value);
         skip(sizeof(value));
+    }
+
+    template <typename T>
+    void write_be(const T& value) {
+        write(Endian::host_to_be(value));
+    }
+
+    template <typename T>
+    void write_le(const T& value) {
+        write(Endian::host_to_le(value));
     }
 
     template <typename ForwardIterator>

@@ -53,9 +53,8 @@ public:
      *
      * \param first The address held by this iterator.
      */
-    AddressRangeIterator(const value_type &addr)
-    : addr(addr), reached_end(false)
-    {
+    AddressRangeIterator(const value_type &address)
+    : address_(address), reached_end_(false) {
 
     }
 
@@ -65,23 +64,22 @@ public:
      * \param first The address held by this iterator.
      */
     AddressRangeIterator(const value_type &address, end_iterator)
-    : addr(address)
-    {
-        reached_end = Internals::increment(addr);
+    : address_(address) {
+        reached_end_ = Internals::increment(address_);
     }
 
     /**
      * Retrieves the current address pointed by this iterator.
      */
     const value_type& operator*() const {
-        return addr;
+        return address_;
     }
 
     /**
      * Retrieves a pointer to the current address pointed by this iterator.
      */
     const value_type* operator->() const {
-        return &addr;
+        return &address_;
     }
 
     /**
@@ -90,7 +88,7 @@ public:
      * \param rhs The iterator with which to compare.
      */
     bool operator==(const AddressRangeIterator &rhs) const {
-        return reached_end == rhs.reached_end && addr == rhs.addr;
+        return reached_end_ == rhs.reached_end_ && address_ == rhs.address_;
     }
 
     /**
@@ -106,7 +104,7 @@ public:
      * Increments this iterator.
      */
     AddressRangeIterator& operator++() {
-        reached_end = Internals::increment(addr);
+        reached_end_ = Internals::increment(address_);
         return *this;
     }
 
@@ -119,8 +117,8 @@ public:
         return copy;
     }
 private:
-    Address addr;
-    bool reached_end;
+    Address address_;
+    bool reached_end_;
 };
 
 /**
@@ -198,10 +196,10 @@ public:
      * should be accessed when using iterators.
      */
     AddressRange(const address_type &first, const address_type &last, bool only_hosts = false)
-    : first(first), last(last), only_hosts(only_hosts)
-    {
-        if(last < first)
+    : first_(first), last_(last), only_hosts_(only_hosts){
+        if (last_ < first_) {
             throw std::runtime_error("Invalid address range");
+        }
     }
 
     /**
@@ -225,7 +223,7 @@ public:
      * \return a bool indicating whether the address is in the range.
      */
     bool contains(const address_type &addr) const {
-        return (first < addr && addr < last) || addr == first || addr == last;
+        return (first_ < addr && addr < last_) || addr == first_ || addr == last_;
     }
 
     /**
@@ -233,9 +231,10 @@ public:
      * \brief const_iterator pointing to the beginning of this range.
      */
     const_iterator begin() const {
-        address_type addr = first;
-        if(only_hosts)
+        address_type addr = first_;
+        if (only_hosts_) {
             Internals::increment(addr);
+        }
         return const_iterator(addr);
     }
 
@@ -244,9 +243,10 @@ public:
      * \brief const_iterator pointing to the end of this range.
      */
     const_iterator end() const {
-        address_type addr = last;
-        if(only_hosts)
+        address_type addr = last_;
+        if (only_hosts_) {
             Internals::decrement(addr);
+        }
         return const_iterator(addr, typename const_iterator::end_iterator());
     }
 
@@ -266,21 +266,23 @@ public:
      */
     bool is_iterable() const {
         // Since first < last, it's iterable
-        if(!only_hosts)
+        if (!only_hosts_) {
             return true;
+        }
         // We need that distance(first, last) >= 4
-        address_type addr(first);
-        for(int i = 0; i < 3; ++i) {
+        address_type addr(first_);
+        for (int i = 0; i < 3; ++i) {
             // If there's overflow before the last iteration, we're done
-            if(Internals::increment(addr) && i != 2)
+            if (Internals::increment(addr) && i != 2) {
                 return false;
+            }
         }
         // If addr <= last, it's OK.
-        return addr < last || addr == last;
+        return addr < last_ || addr == last_;
     }
 private:
-    address_type first, last;
-    bool only_hosts;
+    address_type first_, last_;
+    bool only_hosts_;
 };
 
 /**
@@ -300,11 +302,12 @@ typedef AddressRange<IPv6Address> IPv6Range;
  */
 template<size_t n>
 AddressRange<HWAddress<n> > operator/(const HWAddress<n> &addr, int mask) {
-    if(mask > 48)
+    if (mask > 48) {
         throw std::logic_error("Prefix length cannot exceed 48");
+    }
     HWAddress<n> last_addr;
     typename HWAddress<n>::iterator it = last_addr.begin();
-    while(mask > 8) {
+    while (mask > 8) {
         *it = 0xff;
         ++it;
         mask -= 8;

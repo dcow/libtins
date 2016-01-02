@@ -41,7 +41,9 @@
 
 namespace Tins {
 namespace Memory  {
+
 class OutputMemoryStream;
+
 } // Memory
 
 /**
@@ -289,10 +291,7 @@ public:
         data_type data;
 
         user_class_type(const data_type &data = data_type())
-        : data(data)
-        {
-
-        }
+        : data(data) { }
 
         static user_class_type from_option(const option &opt);
     };
@@ -438,7 +437,7 @@ public:
      * \return The stored message type field.
      */
     MessageType msg_type() const { 
-        return static_cast<MessageType>(header_data[0]); 
+        return static_cast<MessageType>(header_data_[0]); 
     }
     
     /**
@@ -446,7 +445,9 @@ public:
      *
      * \return The stored hop count field.
      */
-    uint8_t hop_count() const { return header_data[1]; }
+    uint8_t hop_count() const {
+        return header_data_[1];
+    }
     
     /**
      * \brief Getter for the transaction id field.
@@ -454,7 +455,7 @@ public:
      * \return The stored transaction id field.
      */
     small_uint<24> transaction_id() const { 
-        return (header_data[1] << 16) | (header_data[2] << 8) | header_data[3];
+        return (header_data_[1] << 16) | (header_data_[2] << 8) | header_data_[3];
     }
 
     /**
@@ -462,21 +463,27 @@ public:
      *
      * \return The stored peer address field.
      */
-    const ipaddress_type &peer_address() const { return peer_addr; }
+    const ipaddress_type &peer_address() const {
+        return peer_addr_;
+    }
     
     /**
      * \brief Getter for the link address field.
      *
      * \return The stored link address field.
      */
-    const ipaddress_type &link_address() const { return link_addr; }
+    const ipaddress_type &link_address() const {
+        return link_addr_;
+    }
     
     /**
      * \brief Getter for the DHCPv6 options.
      *
      * \return The stored options.
      */
-    const options_type &options() const { return options_; }
+    const options_type &options() const {
+        return options_;
+    }
 
     // Setters
     /**
@@ -864,7 +871,9 @@ public:
      * \brief Getter for the PDU's type.
      * \sa PDU::pdu_type
      */
-    PDUType pdu_type() const { return pdu_flag; }
+    PDUType pdu_type() const { 
+        return pdu_flag;
+    }
     
     /**
      * \sa PDU::clone
@@ -881,22 +890,24 @@ private:
     template<template <typename> class Functor>
     const option *safe_search_option(OptionTypes opt, uint32_t size) const {
         const option *option = search_option(opt);
-        if(!option || Functor<uint32_t>()(option->data_size(), size))
+        if (!option || Functor<uint32_t>()(option->data_size(), size)) {
             throw option_not_found();
+        }
         return option;
     }
 
     template<typename T>
     T search_and_convert(OptionTypes opt) const {
         const option *option = search_option(opt);
-        if(!option)
+        if (!option) {
             throw option_not_found();
+        }
         return option->to<T>();
     }
 
-    uint8_t header_data[4];
-    uint32_t options_size;
-    ipaddress_type link_addr, peer_addr;
+    uint8_t header_data_[4];
+    uint32_t options_size_;
+    ipaddress_type link_addr_, peer_addr_;
     options_type options_;
 };   
 
@@ -907,7 +918,7 @@ void class_option_data2option(InputIterator start, InputIterator end,
 {
     size_t index = start_index;
     uint16_t uint16_t_buffer;
-    while(start != end) {
+    while (start != end) {
         buffer.resize(buffer.size() + sizeof(uint16_t) + start->size());
         uint16_t_buffer = Endian::host_to_be(static_cast<uint16_t>(start->size()));
         std::memcpy(&buffer[index], &uint16_t_buffer, sizeof(uint16_t));
@@ -925,20 +936,22 @@ OutputType option2class_option_data(const uint8_t *ptr, uint32_t total_sz)
     typedef typename OutputType::value_type value_type;
     OutputType output;
     size_t index = 0;
-    while(index + 2 < total_sz) {
+    while (index + 2 < total_sz) {
         uint16_t size;
         std::memcpy(&size, ptr + index, sizeof(uint16_t));
         size = Endian::be_to_host(size);
         index += sizeof(uint16_t);
-        if(index + size > total_sz)
+        if (index + size > total_sz) {
             throw option_not_found();
+        }
         output.push_back(
             value_type(ptr + index, ptr + index + size)
         );
         index += size;
     }
-    if(index != total_sz)
+    if (index != total_sz) {
         throw malformed_option();
+    }
     return output;
 }
 } 
