@@ -28,7 +28,6 @@
  */
 
 #include <cstring>
-#include <stdexcept>
 #include <algorithm>
 #include "macros.h"
 #ifndef _WIN32
@@ -53,6 +52,8 @@
 #include "exceptions.h"
 #include "memory_helpers.h"
 
+using std::equal;
+
 using Tins::Memory::InputMemoryStream;
 using Tins::Memory::OutputMemoryStream;
 
@@ -62,16 +63,14 @@ const EthernetII::address_type EthernetII::BROADCAST("ff:ff:ff:ff:ff:ff");
 
 EthernetII::EthernetII(const address_type &dst_hw_addr, 
 const address_type &src_hw_addr) 
-: _eth()
-{
+: header_() {
     dst_addr(dst_hw_addr);
     src_addr(src_hw_addr);
 }
 
-EthernetII::EthernetII(const uint8_t *buffer, uint32_t total_sz) 
-{
+EthernetII::EthernetII(const uint8_t *buffer, uint32_t total_sz) {
     InputMemoryStream stream(buffer, total_sz);
-    stream.read(_eth);
+    stream.read(header_);
     // If there's any size left
     if (stream) {
         inner_pdu(
@@ -82,23 +81,21 @@ EthernetII::EthernetII(const uint8_t *buffer, uint32_t total_sz)
             )
         );
     }
-
 }
 
 void EthernetII::dst_addr(const address_type &new_dst_addr) {
-    new_dst_addr.copy(_eth.dst_mac);
+    new_dst_addr.copy(header_.dst_mac);
 }
 
 void EthernetII::src_addr(const address_type &new_src_addr) {
-    new_src_addr.copy(_eth.src_mac);
+    new_src_addr.copy(header_.src_mac);
 }
 
 void EthernetII::payload_type(uint16_t new_payload_type) {
-    this->_eth.payload_type = Endian::host_to_be(new_payload_type);
+    header_.payload_type = Endian::host_to_be(new_payload_type);
 }
 
 uint32_t EthernetII::header_size() const {
-
     return sizeof(ethhdr);
 }
 
@@ -112,8 +109,9 @@ uint32_t EthernetII::trailer_size() const {
 }
 
 void EthernetII::send(PacketSender &sender, const NetworkInterface &iface) {
-    if(!iface)
+    if (!iface) {
         throw invalid_interface();
+    }
     #if defined(HAVE_PACKET_SENDER_PCAP_SENDPACKET) || defined(BSD) || defined(__FreeBSD_kernel__)
         // Sending using pcap_sendpacket/BSD bpf packet mode is the same here
         sender.send_l2(*this, 0, 0, iface);
@@ -130,21 +128,22 @@ void EthernetII::send(PacketSender &sender, const NetworkInterface &iface) {
         addr.sll_protocol = Endian::host_to_be<uint16_t>(ETH_P_ALL);
         addr.sll_halen = address_type::address_size;
         addr.sll_ifindex = iface.id();
-        memcpy(&(addr.sll_addr), _eth.dst_mac, address_type::address_size);
+        memcpy(&(addr.sll_addr), header_.dst_mac, address_type::address_size);
 
         sender.send_l2(*this, (struct sockaddr*)&addr, (uint32_t)sizeof(addr));
     #endif
 }
 
 bool EthernetII::matches_response(const uint8_t *ptr, uint32_t total_sz) const {
-    if(total_sz < sizeof(ethhdr))
+    if (total_sz < sizeof(header_)) {
         return false;
+    }
     const size_t addr_sz = address_type::address_size;
-    const ethhdr *eth_ptr = (const ethhdr*)ptr;
-    if(std::equal(_eth.src_mac, _eth.src_mac + addr_sz, eth_ptr->dst_mac)) {
-        if(std::equal(_eth.src_mac, _eth.src_mac + addr_sz, eth_ptr->dst_mac) || !dst_addr().is_unicast())
-        {
-            return (inner_pdu()) ? inner_pdu()->matches_response(ptr + sizeof(_eth), total_sz - sizeof(_eth)) : true;
+    const ethernet_header *eth_ptr = (const ethernet_header*)ptr;
+    if(equal(header_.src_mac, header_.src_mac + addr_sz, eth_ptr->dst_mac)) {
+        if(equal(header_.src_mac, header_.src_mac + addr_sz, eth_ptr->dst_mac) || 
+           !dst_addr().is_unicast()) {
+            return (inner_pdu()) ? inner_pdu()->matches_response(ptr + sizeof(header_), total_sz - sizeof(header_)) : true;
         }
     }
     return false;
@@ -168,7 +167,7 @@ void EthernetII::write_serialization(uint8_t *buffer, uint32_t total_sz, const P
             payload_type(static_cast<uint16_t>(flag));
         }
     }
-    stream.write(_eth);
+    stream.write(header_);
     const uint32_t trailer = trailer_size();
     if (trailer) {
         if (inner_pdu()) {
@@ -189,7 +188,7 @@ PDU *EthernetII::recv_response(PacketSender &sender, const NetworkInterface &ifa
         addr.sll_protocol = Endian::host_to_be<uint16_t>(ETH_P_ALL);
         addr.sll_halen = address_type::address_size;
         addr.sll_ifindex = iface.id();
-        memcpy(&(addr.sll_addr), _eth.dst_mac, address_type::address_size);
+        memcpy(&(addr.sll_addr), header_.dst_mac, address_type::address_size);
 
         return sender.recv_l2(*this, (struct sockaddr*)&addr, (uint32_t)sizeof(addr));
     #else

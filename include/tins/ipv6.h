@@ -41,7 +41,9 @@
 
 namespace Tins {
 namespace Memory {
+
 class OutputMemoryStream;
+
 } // Memory
 
 class PacketSender;
@@ -96,8 +98,8 @@ public:
      * for the packet being constructed(optional).
      */
     IPv6(address_type ip_dst = address_type(), 
-        address_type ip_src = address_type(), 
-        PDU *child = 0);
+         address_type ip_src = address_type(), 
+         PDU *child = 0);
 
     /**
      * \brief Constructs an IPv6 object from a buffer and adds all 
@@ -118,7 +120,7 @@ public:
      *  \return The stored version field value.
      */
     small_uint<4> version() const {
-        return _header.version;
+        return header_.version;
     }
 
     /**
@@ -127,10 +129,10 @@ public:
      */
     uint8_t traffic_class() const {
         #if TINS_IS_LITTLE_ENDIAN
-        return ((_header.traffic_class << 4) & 0xf0) | 
-                ((_header.flow_label[0] >> 4) & 0x0f);
+        return ((header_.traffic_class << 4) & 0xf0) | 
+                ((header_.flow_label[0] >> 4) & 0x0f);
         #else
-        return _header.traffic_class;
+        return header_.traffic_class;
         #endif
     }
 
@@ -140,11 +142,11 @@ public:
      */
     small_uint<20> flow_label() const {
         #if TINS_IS_LITTLE_ENDIAN
-        return ((_header.flow_label[0] & 0x0f) << 16)
-                | (_header.flow_label[1] << 8)
-                | (_header.flow_label[2]);
+        return ((header_.flow_label[0] & 0x0f) << 16)
+                | (header_.flow_label[1] << 8)
+                | (header_.flow_label[2]);
         #else
-        return _header.flow_label;
+        return header_.flow_label;
         #endif
     }
 
@@ -153,7 +155,7 @@ public:
      *  \return The stored payload_length field value.
      */
     uint16_t payload_length() const {
-        return Endian::be_to_host(_header.payload_length);
+        return Endian::be_to_host(header_.payload_length);
     }
 
     /**
@@ -161,7 +163,7 @@ public:
      *  \return The stored next_header field value.
      */
     uint8_t next_header() const {
-        return _header.next_header;
+        return header_.next_header;
     }
 
     /**
@@ -169,7 +171,7 @@ public:
      *  \return The stored hop_limit field value.
      */
     uint8_t hop_limit() const {
-        return _header.hop_limit;
+        return header_.hop_limit;
     }
 
     /**
@@ -177,7 +179,7 @@ public:
      *  \return The stored src_addr field value.
      */
     address_type src_addr() const {
-        return _header.src_addr;
+        return header_.src_addr;
     }
 
     /**
@@ -185,7 +187,7 @@ public:
      *  \return The stored dst_addr field value.
      */
     address_type dst_addr() const {
-        return _header.dst_addr;
+        return header_.dst_addr;
     }
 
     /**
@@ -193,7 +195,7 @@ public:
      *  \return The stored headers.
      */
     const headers_type& headers() const {
-        return ext_headers;
+        return ext_headers_;
     }
 
     // Setters
@@ -326,9 +328,9 @@ private:
         uint8_t src_addr[16], dst_addr[16];
     } TINS_END_PACK;
 
-    ipv6_header _header;
-    headers_type ext_headers;
-    uint32_t headers_size;
+    ipv6_header header_;
+    headers_type ext_headers_;
+    uint32_t headers_size_;
 };
 }
 

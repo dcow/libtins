@@ -45,7 +45,7 @@ BootP::BootP()
 
 }
 
-BootP::BootP(const uint8_t *buffer, uint32_t total_sz, uint32_t vend_field_size) 
+BootP::BootP(const uint8_t* buffer, uint32_t total_sz, uint32_t vend_field_size) 
 : vend_(vend_field_size) {
     InputMemoryStream stream(buffer, total_sz);
     stream.read(bootp_);
@@ -103,11 +103,11 @@ void BootP::giaddr(ipaddress_type address) {
     bootp_.giaddr = address;
 }
 
-void BootP::sname(const uint8_t *new_sname) {
+void BootP::sname(const uint8_t* new_sname) {
     copy(new_sname, new_sname + sizeof(bootp_.sname), bootp_.sname);
 }
 
-void BootP::file(const uint8_t *new_file) {
+void BootP::file(const uint8_t* new_file) {
     copy(new_file, new_file + sizeof(bootp_.file), bootp_.file);
 }
 
@@ -115,13 +115,13 @@ void BootP::vend(const vend_type &newvend_) {
     vend_ = newvend_;
 }
 
-void BootP::write_serialization(uint8_t *buffer, uint32_t total_sz, const PDU *parent) {
+void BootP::write_serialization(uint8_t* buffer, uint32_t total_sz, const PDU *parent) {
     OutputMemoryStream stream(buffer, total_sz);
     stream.write(bootp_);
     stream.write(vend_.begin(), vend_.end());
 }
 
-bool BootP::matches_response(const uint8_t *ptr, uint32_t total_sz) const {
+bool BootP::matches_response(const uint8_t* ptr, uint32_t total_sz) const {
     if (total_sz < sizeof(bootp_)) {
         return false;
     }

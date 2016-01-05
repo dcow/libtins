@@ -58,7 +58,7 @@ WEPDecrypter::WEPDecrypter()
     
 }
 
-void WEPDecrypter::add_password(const address_type &addr, const string &password) {
+void WEPDecrypter::add_password(const address_type &addr, const string& password) {
     passwords_[addr] = password;
     key_buffer_.resize(max(3 + password.size(), key_buffer_.size()));
 }
@@ -101,7 +101,7 @@ bool WEPDecrypter::decrypt(PDU &pdu) {
     return false;
 }
 
-PDU *WEPDecrypter::decrypt(RawPDU &raw, const string &password) {
+PDU *WEPDecrypter::decrypt(RawPDU& raw, const string& password) {
     RawPDU::payload_type &pload = raw.payload();
     // We require at least the IV, the encrypted checksum and something to decrypt
     if (pload.size() <= 8) {
@@ -241,7 +241,7 @@ uint16_t lower_byte(uint16_t value) {
     return value & 0xff;
 }
 
-HWAddress<6> get_bssid(const Dot11Data &dot11) {
+HWAddress<6> get_bssid(const Dot11Data& dot11) {
     if(dot11.from_ds() && !dot11.to_ds())
         return dot11.addr3();
     else if(!dot11.from_ds() && dot11.to_ds())
@@ -307,7 +307,7 @@ SessionKeys::SessionKeys(const RSNHandshake &hs, const pmk_type &pmk)
     }
 }
 
-SNAP *SessionKeys::ccmp_decrypt_unicast(const Dot11Data &dot11, RawPDU &raw) const {
+SNAP *SessionKeys::ccmp_decrypt_unicast(const Dot11Data& dot11, RawPDU& raw) const {
     RawPDU::payload_type &pload = raw.payload();
     uint8_t MIC[16] = {0};
     uint8_t PN[6] = {
@@ -387,7 +387,7 @@ SNAP *SessionKeys::ccmp_decrypt_unicast(const Dot11Data &dot11, RawPDU &raw) con
     }
 }
 
-RC4Key SessionKeys::generate_rc4_key(const Dot11Data &dot11, const RawPDU &raw) const {
+RC4Key SessionKeys::generate_rc4_key(const Dot11Data& dot11, const RawPDU& raw) const {
     const RawPDU::payload_type &pload = raw.payload();
     const uint8_t *tk = &ptk_[0] + 32;
     Internals::byte_array<16> rc4_key;
@@ -451,7 +451,7 @@ RC4Key SessionKeys::generate_rc4_key(const Dot11Data &dot11, const RawPDU &raw) 
     return RC4Key(rc4_key.begin(), rc4_key.end());
 }
 
-SNAP *SessionKeys::tkip_decrypt_unicast(const Dot11Data &dot11, RawPDU &raw) const {
+SNAP *SessionKeys::tkip_decrypt_unicast(const Dot11Data& dot11, RawPDU& raw) const {
     // at least 20 bytes for IV + crc + stuff
     if (raw.payload_size() <= 20) {
         return 0;
@@ -471,7 +471,7 @@ SNAP *SessionKeys::tkip_decrypt_unicast(const Dot11Data &dot11, RawPDU &raw) con
     return new SNAP(&pload[0], pload.size() - 20);
 }
 
-SNAP *SessionKeys::decrypt_unicast(const Dot11Data &dot11, RawPDU &raw) const {
+SNAP *SessionKeys::decrypt_unicast(const Dot11Data& dot11, RawPDU& raw) const {
     return is_ccmp_ ? 
            ccmp_decrypt_unicast(dot11, raw) :
            tkip_decrypt_unicast(dot11, raw);
@@ -487,7 +487,7 @@ bool SessionKeys::uses_ccmp() const {
 
 // supplicant_data
 
-SupplicantData::SupplicantData(const string &psk, const string &ssid)
+SupplicantData::SupplicantData(const string& psk, const string& ssid)
 : pmk_(SessionKeys::PMK_SIZE) {
     PKCS5_PBKDF2_HMAC_SHA1(
         psk.c_str(), 
@@ -505,18 +505,18 @@ const SupplicantData::pmk_type &SupplicantData::pmk() const {
 }
 } // namespace WPA2
 
-void WPA2Decrypter::add_ap_data(const string &psk, const string &ssid) {
+void WPA2Decrypter::add_ap_data(const string& psk, const string& ssid) {
     pmks_.insert(make_pair(ssid, WPA2::SupplicantData(psk, ssid)));
 }
 
-void WPA2Decrypter::add_ap_data(const string &psk, 
-                                const string &ssid,
+void WPA2Decrypter::add_ap_data(const string& psk, 
+                                const string& ssid,
                                 const address_type &addr) {
     add_ap_data(psk, ssid);
     add_access_point(ssid, addr);
 }
 
-void WPA2Decrypter::add_access_point(const string &ssid, const address_type &addr) {
+void WPA2Decrypter::add_access_point(const string& ssid, const address_type &addr) {
     pmks_map::const_iterator it = pmks_.find(ssid);
     if (it == pmks_.end()) {
         throw runtime_error("Supplicant data not registered");
@@ -530,7 +530,7 @@ void WPA2Decrypter::add_decryption_keys(const addr_pair& addresses,
     keys_[sorted_pair] = session_keys;
 }
 
-void WPA2Decrypter::try_add_keys(const Dot11Data &dot11, const RSNHandshake &hs) {
+void WPA2Decrypter::try_add_keys(const Dot11Data& dot11, const RSNHandshake &hs) {
     bssids_map::const_iterator it = find_ap(dot11);
     if (it != aps_.end()) {
         addr_pair addr_p = extract_addr_pair(dot11);
@@ -548,7 +548,7 @@ const WPA2Decrypter::keys_map& WPA2Decrypter::get_keys() const {
     return keys_;
 }
 
-WPA2Decrypter::addr_pair WPA2Decrypter::extract_addr_pair(const Dot11Data &dot11) {
+WPA2Decrypter::addr_pair WPA2Decrypter::extract_addr_pair(const Dot11Data& dot11) {
     if (dot11.from_ds() && !dot11.to_ds()) {
         return make_addr_pair(dot11.addr2(), dot11.addr3());
     }
@@ -560,7 +560,7 @@ WPA2Decrypter::addr_pair WPA2Decrypter::extract_addr_pair(const Dot11Data &dot11
     }
 }
 
-WPA2Decrypter::addr_pair WPA2Decrypter::extract_addr_pair_dst(const Dot11Data &dot11) {
+WPA2Decrypter::addr_pair WPA2Decrypter::extract_addr_pair_dst(const Dot11Data& dot11) {
     if (dot11.from_ds() && !dot11.to_ds()) {
         return make_addr_pair(dot11.addr1(), dot11.addr2());
     }
@@ -572,7 +572,7 @@ WPA2Decrypter::addr_pair WPA2Decrypter::extract_addr_pair_dst(const Dot11Data &d
     }
 }
 
-WPA2Decrypter::bssids_map::const_iterator WPA2Decrypter::find_ap(const Dot11Data &dot11) {
+WPA2Decrypter::bssids_map::const_iterator WPA2Decrypter::find_ap(const Dot11Data& dot11) {
     if (dot11.from_ds() && !dot11.to_ds()) {
         return aps_.find(dot11.addr2());
     }

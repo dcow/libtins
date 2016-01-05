@@ -39,6 +39,7 @@
  * \namespace Tins
  */
 namespace Tins {
+
 template<typename WrappedType, typename TimestampType>
 class PacketWrapper;
 
@@ -150,7 +151,7 @@ public:
      * The PDU* is cloned using PDU::clone.
      */
     Packet(const PDU *apdu, const Timestamp &tstamp) 
-    : pdu_(apdu->clone()), ts(tstamp) { }
+    : pdu_(apdu->clone()), ts_(tstamp) { }
 
     /**
      * \brief Constructs a Packet from a PDU* and a Timestamp.
@@ -161,7 +162,7 @@ public:
      * of scope.
      */
     Packet(PDU *apdu, const Timestamp &tstamp, own_pdu) 
-    : pdu_(apdu), ts(tstamp) { }
+    : pdu_(apdu), ts_(tstamp) { }
     
     /**
      * \brief Constructs a Packet from a const PDU&.
@@ -172,7 +173,7 @@ public:
      * 
      */
     Packet(const PDU &rhs) 
-    : pdu_(rhs.clone()), ts(Timestamp::current_time()) { }
+    : pdu_(rhs.clone()), ts_(Timestamp::current_time()) { }
     
     /**
      * \brief Constructs a Packet from a RefPacket.
@@ -181,20 +182,20 @@ public:
      * 
      */
     Packet(const RefPacket &pck) 
-    : pdu_(pck.pdu().clone()), ts(pck.timestamp()) { }
+    : pdu_(pck.pdu().clone()), ts_(pck.timestamp()) { }
 
     /**
      * \brief Constructs a Packet from a PtrPacket object.
      */
     Packet(const PtrPacket &pck)
-    : pdu_(pck.pdu()), ts(pck.timestamp()) { }
+    : pdu_(pck.pdu()), ts_(pck.timestamp()) { }
     
     /**
      * \brief Copy constructor.
      * 
      * This calls PDU::clone on the rhs's PDU* member.
      */
-    Packet(const Packet &rhs) : ts(rhs.timestamp()) {
+    Packet(const Packet &rhs) : ts_(rhs.timestamp()) {
         pdu_ = rhs.pdu() ? rhs.pdu()->clone() : 0;
     }
     
@@ -204,9 +205,9 @@ public:
      * This calls PDU::clone on the rhs's PDU* member.
      */
     Packet& operator=(const Packet &rhs) {
-        if(this != &rhs) {
+        if (this != &rhs) {
             delete pdu_;
-            ts = rhs.timestamp();
+            ts_ = rhs.timestamp();
             pdu_ = rhs.pdu() ? rhs.pdu()->clone() : 0;
         }
         return *this;
@@ -216,7 +217,7 @@ public:
     /**
      * Move constructor.
      */
-    Packet(Packet &&rhs) TINS_NOEXCEPT : pdu_(rhs.pdu()), ts(rhs.timestamp()) {
+    Packet(Packet &&rhs) TINS_NOEXCEPT : pdu_(rhs.pdu()), ts_(rhs.timestamp()) {
         rhs.pdu_ = nullptr;
     }
     
@@ -224,9 +225,9 @@ public:
      * Move assignment operator.
      */
     Packet& operator=(Packet &&rhs) TINS_NOEXCEPT { 
-        if(this != &rhs) {
+        if (this != &rhs) {
             std::swap(pdu_, rhs.pdu_);
-            ts = rhs.timestamp();
+            ts_ = rhs.timestamp();
         }
         return *this;
     }
@@ -245,7 +246,7 @@ public:
      * Returns this Packet's timestamp.
      */
     const Timestamp &timestamp() const {
-        return ts;
+        return ts_;
     }
     
     /**
@@ -304,7 +305,7 @@ public:
     }
 private:
     PDU *pdu_;
-    Timestamp ts;
+    Timestamp ts_;
 };
 }
 

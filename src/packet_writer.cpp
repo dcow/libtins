@@ -35,15 +35,18 @@
 #include "packet.h"
 #include "pdu.h"
 
+using std::string;
+
 namespace Tins {
-PacketWriter::PacketWriter(const std::string &file_name, LinkType lt) {
+
+PacketWriter::PacketWriter(const string &file_name, LinkType lt) {
     init(file_name, lt);
 }
 
 PacketWriter::~PacketWriter() {
-    if(dumper && handle) {
-        pcap_dump_close(dumper);
-        pcap_close(handle);
+    if (dumper_ && handle_) {
+        pcap_dump_close(dumper_);
+        pcap_close(handle_);
     }
 }
 
@@ -72,19 +75,20 @@ void PacketWriter::write(PDU& pdu, const struct timeval& tv) {
         static_cast<bpf_u_int32>(buffer.size()),
         static_cast<bpf_u_int32>(buffer.size())
     };
-    pcap_dump((u_char*)dumper, &header, &buffer[0]);
+    pcap_dump((u_char*)dumper_, &header, &buffer[0]);
 }
 
-void PacketWriter::init(const std::string& file_name, int link_type) {
-    handle = pcap_open_dead(link_type, 65535);
-    if(!handle)
+void PacketWriter::init(const string& file_name, int link_type) {
+    handle_ = pcap_open_dead(link_type, 65535);
+    if (!handle_) {
         throw std::runtime_error("Error creating pcap handle");
-    dumper = pcap_dump_open(handle, file_name.c_str());
-    if(!dumper) {
+    }
+    dumper_ = pcap_dump_open(handle_, file_name.c_str());
+    if (!dumper_) {
         // RAII plx
-        pcap_close(handle);
-        throw std::runtime_error(pcap_geterr(handle));
+        pcap_close(handle_);
+        throw std::runtime_error(pcap_geterr(handle_));
     }
 }
 
-}
+} // Tins

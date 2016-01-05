@@ -45,8 +45,10 @@
 
 namespace Tins {
 namespace Memory {
+
 class InputMemoryStream;
 class OutputMemoryStream;
+
 } // memory
 
 /**
@@ -165,8 +167,7 @@ public:
         addresses_type addresses;
         
         addr_list_type(const addresses_type &addresses = addresses_type())
-        : addresses(addresses) 
-        {
+        : addresses(addresses) {
             std::fill(reserved, reserved + sizeof(reserved), 0);
         }
         
@@ -192,8 +193,7 @@ public:
         uint8_t reserved[4];
         
         naack_type(uint8_t code = 0, uint8_t status = 0)
-        : code(code), status(status)
-        {
+        : code(code), status(status) {
             std::fill(reserved, reserved + 4, 0);
         }
         
@@ -216,9 +216,8 @@ public:
          * \param address The address to be stored.
          */
         lladdr_type(uint8_t option_code = 0, 
-          const address_type &address = address_type())
-        : option_code(option_code), address(address) 
-        {
+                    const address_type &address = address_type())
+        : option_code(option_code), address(address) {
             
         }
         
@@ -231,10 +230,8 @@ public:
          * \param option_code The option code.
          * \param address The address to be stored.
          */
-        lladdr_type(uint8_t option_code, 
-          const hwaddress_type &address)
-        : option_code(option_code), address(address.begin(), address.end()) 
-        {
+        lladdr_type(uint8_t option_code, const hwaddress_type &address)
+        : option_code(option_code), address(address.begin(), address.end()) {
             
         }
         
@@ -252,12 +249,14 @@ public:
                 reserved2;
         ipaddress_type prefix;
         
-        prefix_info_type(uint8_t prefix_len=0, small_uint<1> A=0, small_uint<1> L=0,
-          uint32_t valid_lifetime=0, uint32_t preferred_lifetime=0,
-          const ipaddress_type &prefix = ipaddress_type())
-        : prefix_len(prefix_len), A(A), L(L), 
-          valid_lifetime(valid_lifetime), preferred_lifetime(preferred_lifetime),
-          prefix(prefix) { }
+        prefix_info_type(uint8_t prefix_len = 0, 
+                         small_uint<1> A = 0,
+                         small_uint<1> L = 0,
+                         uint32_t valid_lifetime = 0, 
+                         uint32_t preferred_lifetime = 0,
+                         const ipaddress_type &prefix = ipaddress_type())
+        : prefix_len(prefix_len), A(A), L(L), valid_lifetime(valid_lifetime),
+          preferred_lifetime(preferred_lifetime), prefix(prefix) { }
           
         static prefix_info_type from_option(const option &opt);
     };
@@ -291,8 +290,7 @@ public:
          */
         template<typename RAIterator, typename ForwardIterator>
         rsa_sign_type(RAIterator hash, ForwardIterator start, ForwardIterator end)
-        : signature(start, end)
-        {
+        : signature(start, end) {
             std::copy(hash, hash + sizeof(key_hash), key_hash);
         }
         
@@ -310,8 +308,7 @@ public:
          */
         template<typename RAIterator>
         rsa_sign_type(RAIterator hash, const signature_type &sign)
-        : signature(sign)
-        {
+        : signature(sign) {
             std::copy(hash, hash + sizeof(key_hash), key_hash);
         }
         
@@ -320,8 +317,7 @@ public:
          * 
          * The key_hash member will be 0-initialized.
          */
-        rsa_sign_type()
-        {
+        rsa_sign_type() {
             std::fill(key_hash, key_hash + sizeof(key_hash), 0);
         }
 
@@ -335,8 +331,9 @@ public:
         uint8_t option_code, prefix_len;
         ipaddress_type address;
         
-        ip_prefix_type(uint8_t option_code = 0, uint8_t prefix_len = 0,
-          const ipaddress_type &address = ipaddress_type())
+        ip_prefix_type(uint8_t option_code = 0,
+                       uint8_t prefix_len = 0,
+                       const ipaddress_type &address = ipaddress_type())
         : option_code(option_code), prefix_len(prefix_len), address(address)
         {}
 
@@ -352,9 +349,11 @@ public:
         uint32_t valid_lifetime;
         ipaddress_type address;
         
-        map_type(small_uint<4> dist = 0, small_uint<4> pref = 0, 
-          small_uint<1> r = 0, uint32_t valid_lifetime = 0, 
-          const ipaddress_type &address = ipaddress_type())
+        map_type(small_uint<4> dist = 0,
+                 small_uint<4> pref = 0, 
+                 small_uint<1> r = 0, 
+                 uint32_t valid_lifetime = 0, 
+                 const ipaddress_type &address = ipaddress_type())
         : dist(dist), pref(pref), r(r), valid_lifetime(valid_lifetime),
           address(address) { }
 
@@ -372,8 +371,10 @@ public:
         uint32_t route_lifetime;
         prefix_type prefix;
         
-        route_info_type(uint8_t prefix_len = 0, small_uint<2> pref = 0, 
-          uint32_t route_lifetime = 0, const prefix_type &prefix = prefix_type())
+        route_info_type(uint8_t prefix_len = 0, 
+                        small_uint<2> pref = 0, 
+                        uint32_t route_lifetime = 0,
+                        const prefix_type &prefix = prefix_type())
         : prefix_len(prefix_len), pref(pref), route_lifetime(route_lifetime),
           prefix(prefix) { }
 
@@ -390,7 +391,7 @@ public:
         servers_type servers;
         
         recursive_dns_type(uint32_t lifetime = 0, 
-          const servers_type &servers = servers_type())
+                           const servers_type &servers = servers_type())
         : lifetime(lifetime), servers(servers) {}
 
         static recursive_dns_type from_option(const option &opt);
@@ -406,7 +407,7 @@ public:
         key_type key;
         
         handover_key_req_type(small_uint<4> AT = 0,
-          const key_type &key = key_type())
+                              const key_type &key = key_type())
         : AT(AT), key(key) { }
 
         static handover_key_req_type from_option(const option &opt);
@@ -418,8 +419,9 @@ public:
     struct handover_key_reply_type : handover_key_req_type {
         uint16_t lifetime;
         
-        handover_key_reply_type(uint16_t lifetime = 0, small_uint<4> AT = 0,
-          const key_type &key = key_type())
+        handover_key_reply_type(uint16_t lifetime = 0, 
+                                small_uint<4> AT = 0,
+                                const key_type &key = key_type())
         : handover_key_req_type(AT, key), lifetime(lifetime) { }
 
         static handover_key_reply_type from_option(const option &opt);
@@ -435,7 +437,7 @@ public:
         hai_type hai;
         
         handover_assist_info_type(uint8_t option_code=0, 
-          const hai_type &hai = hai_type())
+                                  const hai_type &hai = hai_type())
         : option_code(option_code), hai(hai) { }
 
         static handover_assist_info_type from_option(const option &opt);
@@ -451,7 +453,7 @@ public:
         mn_type mn;
         
         mobile_node_id_type(uint8_t option_code=0, 
-          const mn_type &mn = mn_type())
+                            const mn_type &mn = mn_type())
         : option_code(option_code), mn(mn) { }
 
         static mobile_node_id_type from_option(const option &opt);
@@ -467,7 +469,7 @@ public:
         domains_type domains;
         
         dns_search_list_type(uint32_t lifetime = 0,
-          const domains_type &domains = domains_type())
+                             const domains_type &domains = domains_type())
         : lifetime(lifetime), domains(domains) { }
 
         static dns_search_list_type from_option(const option &opt);
@@ -481,8 +483,7 @@ public:
         uint64_t timestamp;
 
         timestamp_type(uint64_t timestamp = 0)
-        : timestamp(timestamp)
-        {
+        : timestamp(timestamp) {
             std::fill(reserved, reserved + sizeof(reserved), 0);
         }
 
@@ -497,8 +498,7 @@ public:
         uint32_t reserved2;
 
         shortcut_limit_type(uint8_t limit = 0)
-        : limit(limit), reserved1(), reserved2()
-        {
+        : limit(limit), reserved1(), reserved2() {
 
         }
 
@@ -513,8 +513,7 @@ public:
         uint32_t interval;
 
         new_advert_interval_type(uint32_t interval = 0)
-        : reserved(), interval(interval)
-        {
+        : reserved(), interval(interval) {
 
         }
 
@@ -575,7 +574,7 @@ public:
      *  \return The stored type field value.
      */
     Types type() const {
-        return static_cast<Types>(_header.type);
+        return static_cast<Types>(header_.type);
     }
 
     /**
@@ -583,7 +582,7 @@ public:
      *  \return The stored code field value.
      */
     uint8_t code() const {
-        return _header.code;
+        return header_.code;
     }
 
     /**
@@ -591,7 +590,7 @@ public:
      *  \return The stored cksum field value.
      */
     uint16_t checksum() const {
-        return Endian::be_to_host(_header.cksum);
+        return Endian::be_to_host(header_.cksum);
     }
 
     /**
@@ -599,7 +598,7 @@ public:
      *  \return The stored identifier field value.
      */
     uint16_t identifier() const {
-        return Endian::be_to_host(_header.u_echo.identifier);
+        return Endian::be_to_host(header_.u_echo.identifier);
     }
 
     /**
@@ -607,7 +606,7 @@ public:
      *  \return The stored sequence field value.
      */
     uint16_t sequence() const {
-        return Endian::be_to_host(_header.u_echo.sequence);
+        return Endian::be_to_host(header_.u_echo.sequence);
     }
 
     /**
@@ -615,7 +614,7 @@ public:
      *  \return The stored override field value.
      */
     small_uint<1> override() const {
-        return _header.u_nd_advt.override;
+        return header_.u_nd_advt.override;
     }
 
     /**
@@ -623,7 +622,7 @@ public:
      *  \return The stored solicited field value.
      */
     small_uint<1> solicited() const {
-        return _header.u_nd_advt.solicited;
+        return header_.u_nd_advt.solicited;
     }
 
     /**
@@ -631,7 +630,7 @@ public:
      *  \return The stored router field value.
      */
     small_uint<1> router() const {
-        return _header.u_nd_advt.router;
+        return header_.u_nd_advt.router;
     }
 
     /**
@@ -639,7 +638,7 @@ public:
      *  \return The stored hop_limit field value.
      */
     uint8_t hop_limit() const {
-        return _header.u_nd_ra.hop_limit;
+        return header_.u_nd_ra.hop_limit;
     }
 
     /**
@@ -647,7 +646,7 @@ public:
      *  \return The stored router_pref field value.
      */
     small_uint<2> router_pref() const {
-        return _header.u_nd_ra.router_pref;
+        return header_.u_nd_ra.router_pref;
     }
 
     /**
@@ -655,7 +654,7 @@ public:
      *  \return The stored home_agent field value.
      */
     small_uint<1> home_agent() const {
-        return _header.u_nd_ra.home_agent;
+        return header_.u_nd_ra.home_agent;
     }
 
     /**
@@ -663,7 +662,7 @@ public:
      *  \return The stored other field value.
      */
     small_uint<1> other() const {
-        return _header.u_nd_ra.other;
+        return header_.u_nd_ra.other;
     }
 
     /**
@@ -671,7 +670,7 @@ public:
      *  \return The stored managed field value.
      */
     small_uint<1> managed() const {
-        return _header.u_nd_ra.managed;
+        return header_.u_nd_ra.managed;
     }
 
     /**
@@ -679,7 +678,7 @@ public:
      *  \return The stored router_lifetime field value.
      */
     uint16_t router_lifetime() const {
-        return Endian::be_to_host(_header.u_nd_ra.router_lifetime);
+        return Endian::be_to_host(header_.u_nd_ra.router_lifetime);
     }
     
     /**
@@ -687,7 +686,7 @@ public:
      *  \return The stored reachable_time field value.
      */
     uint32_t reachable_time() const {
-        return Endian::be_to_host(reach_time);
+        return Endian::be_to_host(reach_time_);
     }
     
     /**
@@ -695,7 +694,7 @@ public:
      *  \return The stored retransmit_timer field value.
      */
     uint32_t retransmit_timer() const {
-        return Endian::be_to_host(retrans_timer);
+        return Endian::be_to_host(retrans_timer_);
     }
     
     /**
@@ -703,7 +702,7 @@ public:
      *  \return The stored target address field value.
      */
     const ipaddress_type &target_addr() const {
-        return _target_address;
+        return target_address_;
     }
     
     /**
@@ -711,7 +710,7 @@ public:
      *  \return The stored destination address field value.
      */
     const ipaddress_type &dest_addr() const {
-        return _dest_address;
+        return dest_address_;
     }
 
     /**
@@ -719,7 +718,7 @@ public:
      *  \return The stored options.
      */
     const options_type &options() const {
-        return _options;
+        return options_;
     }
 
     /**
@@ -728,7 +727,7 @@ public:
      * \return Returns the length field value.
      */
     uint8_t length() const { 
-        return _header.rfc4884.length;
+        return header_.rfc4884.length;
     }
 
     /**
@@ -869,8 +868,8 @@ public:
      */
     bool has_target_addr() const {
         return type() == NEIGHBOUR_SOLICIT || 
-                type() == NEIGHBOUR_ADVERT || 
-                type() == REDIRECT;
+               type() == NEIGHBOUR_ADVERT || 
+               type() == REDIRECT;
     }
     
     /**
@@ -902,7 +901,7 @@ public:
          */
         void add_option(option &&option) {
             internal_add_option(option);
-            _options.push_back(std::move(option));
+            options_.push_back(std::move(option));
         }
     #endif
 
@@ -939,19 +938,25 @@ public:
      *
      * \return The extensions field
      */
-    const ICMPExtensionsStructure& extensions() const { return extensions_; }
+    const ICMPExtensionsStructure& extensions() const {
+        return extensions_;
+    }
 
     /** 
      * \brief Getter for the extensions field.
      *
      * \return The extensions field
      */
-    ICMPExtensionsStructure& extensions() { return extensions_; }
+    ICMPExtensionsStructure& extensions() {
+        return extensions_;
+    }
 
     /**
      * \brief Indicates whether this object contains ICMP extensions
      */
-    bool has_extensions() const { return !extensions_.extensions().empty(); }
+    bool has_extensions() const {
+        return !extensions_.extensions().empty();
+    }
 
     /**
      * \brief Sets whether the length field will be set for packets that use it
@@ -1367,7 +1372,7 @@ public:
     dns_search_list_type dns_search_list() const;
 private:
     TINS_BEGIN_PACK
-    struct icmp6hdr {
+    struct icmp6_header {
         uint8_t	type;
         uint8_t code;
         uint16_t cksum;
@@ -1432,28 +1437,31 @@ private:
     void try_parse_extensions(Memory::InputMemoryStream& stream);
     bool are_extensions_allowed() const;
     uint32_t get_adjusted_inner_pdu_size() const;
+    uint8_t get_option_padding(uint32_t data_size);
 
     template<template <typename> class Functor>
     const option *safe_search_option(OptionTypes opt, uint32_t size) const {
         const option *option = search_option(opt);
-        if(!option || Functor<uint32_t>()(option->data_size(), size))
+        if (!option || Functor<uint32_t>()(option->data_size(), size)) {
             throw option_not_found();
+        }
         return option;
     }
 
     template<typename T>
     T search_and_convert(OptionTypes type) const {
         const option *opt = search_option(type);
-        if(!opt)
+        if (!opt) {
             throw option_not_found();
+        }
         return opt->to<T>();
     }
 
-    icmp6hdr _header;
-    ipaddress_type _target_address, _dest_address;
-    options_type _options;
-    uint32_t _options_size;
-    uint32_t reach_time, retrans_timer;
+    icmp6_header header_;
+    ipaddress_type target_address_, dest_address_;
+    options_type options_;
+    uint32_t options_size_;
+    uint32_t reach_time_, retrans_timer_;
     multicast_address_records_list multicast_records_;
     ICMPExtensionsStructure extensions_;
 };

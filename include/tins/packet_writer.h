@@ -115,8 +115,7 @@ public:
      * \sa PcapIdentifier.
      */
     template<typename T>
-    PacketWriter(const std::string &file_name, const DataLinkType<T>& lt)
-    {
+    PacketWriter(const std::string &file_name, const DataLinkType<T>& lt) {
         init(file_name, lt.get_type());
     }
 
@@ -154,10 +153,10 @@ public:
          * \param rhs The PacketWriter to be moved.
          */
         PacketWriter& operator=(PacketWriter &&rhs) TINS_NOEXCEPT {
-            handle = 0;
-            dumper = 0;
-            std::swap(handle, rhs.handle);
-            std::swap(dumper, rhs.dumper);
+            handle_ = 0;
+            dumper_ = 0;
+            std::swap(handle_, rhs.handle_);
+            std::swap(dumper_, rhs.dumper_);
             return *this;
         }
     #endif
@@ -206,8 +205,9 @@ public:
      */
     template<typename ForwardIterator>
     void write(ForwardIterator start, ForwardIterator end) {
-        while(start != end) 
+        while (start != end) {
             write(Utils::dereference_until_pdu(*start++));
+        }
     }
 private:
     // You shall not copy
@@ -217,8 +217,8 @@ private:
     void init(const std::string& file_name, int link_type);
     void write(PDU& pdu, const struct timeval& tv);
 
-    pcap_t *handle;
-    pcap_dumper_t *dumper; 
+    pcap_t *handle_;
+    pcap_dumper_t *dumper_; 
 };
 }
 

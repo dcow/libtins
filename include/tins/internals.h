@@ -46,6 +46,7 @@
  */
 namespace Tins {
 namespace Memory {
+
 class InputMemoryStream;
 } // Memory
 class IPv4Address;
@@ -53,6 +54,7 @@ class IPv6Address;
 class ICMPExtensionsStructure;
 
 namespace Internals {
+
 template<size_t n>
 class byte_array {
 public:
@@ -135,13 +137,14 @@ void try_parse_icmp_extensions(Memory::InputMemoryStream& stream,
 template<typename T>
 bool increment_buffer(T &addr) {
     typename T::iterator it = addr.end() - 1;
-    while(it >= addr.begin() && *it == 0xff) {
+    while (it >= addr.begin() && *it == 0xff) {
         *it = 0;
         --it;
     }
     // reached end
-    if(it < addr.begin())
+    if (it < addr.begin()) {
         return true;
+    }
     (*it)++;
     return false;
 }
@@ -149,13 +152,14 @@ bool increment_buffer(T &addr) {
 template<typename T>
 bool decrement_buffer(T &addr) {
     typename T::iterator it = addr.end() - 1;
-    while(it >= addr.begin() && *it == 0) {
+    while (it >= addr.begin() && *it == 0) {
         *it = 0xff;
         --it;
     }
     // reached end
-    if(it < addr.begin())
+    if (it < addr.begin()) {
         return true;
+    }
     (*it)--;
     return false;
 }
@@ -178,7 +182,7 @@ IPv6Address last_address_from_mask(IPv6Address addr, const IPv6Address &mask);
 template<size_t n>
 HWAddress<n> last_address_from_mask(HWAddress<n> addr, const HWAddress<n> &mask) {
     typename HWAddress<n>::iterator addr_iter = addr.begin();
-    for(typename HWAddress<n>::const_iterator it = mask.begin(); it != mask.end(); ++it, ++addr_iter) {
+    for (typename HWAddress<n>::const_iterator it = mask.begin(); it != mask.end(); ++it, ++addr_iter) {
         *addr_iter = *addr_iter | ~*it;
     }
     return addr;

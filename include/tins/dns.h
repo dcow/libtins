@@ -70,7 +70,7 @@ class IPv6Address;
  * DNS dns = udp.rfind_pdu<RawPDU>().to<DNS>();
  *
  * // Now use the DNS object!
- * for(const auto& query : dns_.queries()) {
+ * for(const auto& query : dns.queries()) {
  *     // Process a query
  * }
  * \endcode
@@ -351,7 +351,7 @@ public:
      * \return uint16_t containing the value of the id field.
      */
     uint16_t id() const { 
-        return Endian::be_to_host(dns_.id); 
+        return Endian::be_to_host(header_.id); 
     }
     
     /**
@@ -361,7 +361,7 @@ public:
      * field.
      */
     QRType type() const {
-        return static_cast<QRType>(dns_.qr);
+        return static_cast<QRType>(header_.qr);
     }
     
     /**
@@ -370,7 +370,7 @@ public:
      * \return uint8_t containing the value of the opcode field.
      */
     uint8_t opcode() const {
-        return dns_.opcode;
+        return header_.opcode;
     }
     
     /**
@@ -380,7 +380,7 @@ public:
      * answer field.
      */
     uint8_t authoritative_answer() const {
-        return dns_.aa;
+        return header_.aa;
     }
     
     /**
@@ -389,7 +389,7 @@ public:
      * \return uint8_t containing the value of the truncated field.
      */
     uint8_t truncated() const {
-        return dns_.tc;
+        return header_.tc;
     }
     
     /**
@@ -399,7 +399,7 @@ public:
      * desired field.
      */
     uint8_t recursion_desired() const {
-        return dns_.rd;
+        return header_.rd;
     }
     
     /**
@@ -409,7 +409,7 @@ public:
      * available field.
      */
     uint8_t recursion_available() const {
-        return dns_.ra;
+        return header_.ra;
     }
     
     /**
@@ -418,7 +418,7 @@ public:
      * \return uint8_t containing the value of the z field.
      */
     uint8_t z() const {
-        return dns_.z;
+        return header_.z;
     }
     
     /**
@@ -428,7 +428,7 @@ public:
      * data field.
      */
     uint8_t authenticated_data() const {
-        return dns_.ad;
+        return header_.ad;
     }
     
     /**
@@ -438,7 +438,7 @@ public:
      * disabled field.
      */
     uint8_t checking_disabled() const {
-        return dns_.cd;
+        return header_.cd;
     }
     
     /**
@@ -447,7 +447,7 @@ public:
      * \return uint8_t containing the value of the rcode field.
      */
     uint8_t rcode() const {
-        return dns_.rcode;
+        return header_.rcode;
     }
     
     /**
@@ -456,7 +456,7 @@ public:
      * \return uint16_t containing the value of the questions field.
      */
     uint16_t questions_count() const {
-        return Endian::be_to_host(dns_.questions);
+        return Endian::be_to_host(header_.questions);
     }
     
     /**
@@ -465,7 +465,7 @@ public:
      * \return uint16_t containing the value of the answers field.
      */
     uint16_t answers_count() const {
-        return Endian::be_to_host(dns_.answers);
+        return Endian::be_to_host(header_.answers);
     }
     
     /**
@@ -474,7 +474,7 @@ public:
      * \return uint16_t containing the value of the authority field.
      */
     uint16_t authority_count() const {
-        return Endian::be_to_host(dns_.authority);
+        return Endian::be_to_host(header_.authority);
     }
     
     /**
@@ -483,7 +483,7 @@ public:
      * \return uint16_t containing the value of the additional field.
      */
     uint16_t additional_count() const {
-        return Endian::be_to_host(dns_.additional);
+        return Endian::be_to_host(header_.additional);
     }
 
     /**
@@ -722,7 +722,7 @@ private:
     void write_serialization(uint8_t *buffer, uint32_t total_sz, const PDU *parent);
     void add_record(const Resource &resource, const sections_type &sections);
     
-    dns_header dns_;
+    dns_header header_;
     byte_array records_data_;
     uint32_t answers_idx_, authority_idx_, additional_idx_;
 };

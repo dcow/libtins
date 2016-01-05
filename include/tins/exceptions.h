@@ -34,6 +34,7 @@
 #include <stdexcept>
 
 namespace Tins {
+
 /**
  * \brief Base class for all libtins exceptions.
  */
@@ -95,6 +96,17 @@ class invalid_interface : public exception_base {
 public:
     const char* what() const throw() {
         return "Invalid interface";
+    }
+};
+
+/**
+ * \brief Exception thrown when an invalid string representation of an address
+ * is provided
+ */
+class invalid_address : public exception_base {
+public:
+    const char* what() const throw() {
+        return "Invalid address";
     }
 };
 
@@ -196,6 +208,20 @@ class option_payload_too_large : public exception_base {
 public:
     const char *what() const throw() {
         return "Option payload too large";
+    }
+};
+
+/**
+ * \brief Exception thrown when an invalid pcap filter is compiled
+ */
+class invalid_pcap_filter : public exception_base {
+public:
+    invalid_pcap_filter(const char* message) : exception_base(message) {
+
+    }
+
+    const char *what() const throw() {
+        return "Invalid pcap filter";
     }
 };
 

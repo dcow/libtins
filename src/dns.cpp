@@ -52,14 +52,14 @@ using Tins::Memory::OutputMemoryStream;
 namespace Tins {
 
 DNS::DNS() 
-: dns_(), answers_idx_(), authority_idx_(), additional_idx_() { 
+: header_(), answers_idx_(), authority_idx_(), additional_idx_() { 
 }
 
 DNS::DNS(const uint8_t *buffer, uint32_t total_sz) 
 : answers_idx_(), authority_idx_(), additional_idx_()
 { 
     InputMemoryStream stream(buffer, total_sz);
-    stream.read(dns_);
+    stream.read(header_);
     records_data_.assign(stream.pointer(), stream.pointer() + stream.size());
     // Avoid doing this if there's no data. Otherwise VS's asserts fail.
     if (!records_data_.empty()) {
@@ -113,51 +113,51 @@ void DNS::skip_to_section_end(InputMemoryStream& stream,
 }
 
 uint32_t DNS::header_size() const {
-    return static_cast<uint32_t>(sizeof(dns_) + records_data_.size());
+    return static_cast<uint32_t>(sizeof(header_) + records_data_.size());
 }
 
 void DNS::id(uint16_t new_id) {
-    dns_.id = Endian::host_to_be(new_id);
+    header_.id = Endian::host_to_be(new_id);
 }
 
 void DNS::type(QRType new_qr) {
-    dns_.qr = new_qr;
+    header_.qr = new_qr;
 }
 
 void DNS::opcode(uint8_t new_opcode) {
-    dns_.opcode = new_opcode;
+    header_.opcode = new_opcode;
 }
 
 void DNS::authoritative_answer(uint8_t new_aa) {
-    dns_.aa = new_aa;
+    header_.aa = new_aa;
 }
 
 void DNS::truncated(uint8_t new_tc) {
-    dns_.tc = new_tc;
+    header_.tc = new_tc;
 }
 
 void DNS::recursion_desired(uint8_t new_rd) {
-    dns_.rd = new_rd;
+    header_.rd = new_rd;
 }
 
 void DNS::recursion_available(uint8_t new_ra) {
-    dns_.ra = new_ra;
+    header_.ra = new_ra;
 }
 
 void DNS::z(uint8_t new_z) {
-    dns_.z = new_z;
+    header_.z = new_z;
 }
 
 void DNS::authenticated_data(uint8_t new_ad) {
-    dns_.ad = new_ad;
+    header_.ad = new_ad;
 }
 
 void DNS::checking_disabled(uint8_t new_cd) {
-    dns_.cd = new_cd;
+    header_.cd = new_cd;
 }
 
 void DNS::rcode(uint8_t new_rcode) {
-    dns_.rcode = new_rcode;
+    header_.rcode = new_rcode;
 }
 
 bool DNS::contains_dname(uint16_t type) {
@@ -186,7 +186,7 @@ void DNS::add_query(const Query &query) {
         new_str.begin(),
         new_str.end()
     );
-    dns_.questions = Endian::host_to_be(static_cast<uint16_t>(questions_count() + 1));
+    header_.questions = Endian::host_to_be(static_cast<uint16_t>(questions_count() + 1));
 }
 
 void DNS::add_answer(const Resource &resource) {
@@ -194,7 +194,7 @@ void DNS::add_answer(const Resource &resource) {
     sections.push_back(make_pair(&authority_idx_, authority_count()));
     sections.push_back(make_pair(&additional_idx_, additional_count()));
     add_record(resource, sections);
-    dns_.answers = Endian::host_to_be<uint16_t>(
+    header_.answers = Endian::host_to_be<uint16_t>(
         answers_count() + 1
     );
 }
@@ -262,14 +262,14 @@ void DNS::add_authority(const Resource &resource) {
     sections_type sections;
     sections.push_back(make_pair(&additional_idx_, additional_count()));
     add_record(resource, sections);
-    dns_.authority = Endian::host_to_be<uint16_t>(
+    header_.authority = Endian::host_to_be<uint16_t>(
         authority_count() + 1
     );
 }
 
 void DNS::add_additional(const Resource &resource){
     add_record(resource, sections_type());
-    dns_.additional = Endian::host_to_be<uint16_t>(
+    header_.additional = Endian::host_to_be<uint16_t>(
         additional_count() + 1
     );
 }
@@ -344,7 +344,7 @@ uint32_t DNS::compose_name(const uint8_t *ptr, char *out_ptr) const {
 
 void DNS::write_serialization(uint8_t *buffer, uint32_t total_sz, const PDU *parent) {
     OutputMemoryStream stream(buffer, total_sz);
-    stream.write(dns_);
+    stream.write(header_);
     stream.write(records_data_.begin(), records_data_.end());
 }
 
@@ -544,11 +544,11 @@ DNS::resources_type DNS::additional() const {
 }
 
 bool DNS::matches_response(const uint8_t *ptr, uint32_t total_sz) const {
-    if (total_sz < sizeof(dns_)) {
+    if (total_sz < sizeof(header_)) {
         return false;
     }
     const dns_header *hdr = (const dns_header*)ptr;
-    return hdr->id == dns_.id;
+    return hdr->id == header_.id;
 }
 
 } // Tins

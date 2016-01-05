@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef TINSbootp__H
-#define TINSbootp__H
+#ifndef TINS_BOOTP_H
+#define TINS_BOOTP_H
 
 #include <stdint.h>
 #include <algorithm>
@@ -94,7 +94,7 @@ public:
      * \param vend_field_size The vend field size to allocate.
      * Subclasses might use 0 to provide their own interpretation of this field.
      */
-    BootP(const uint8_t *buffer, uint32_t total_sz, uint32_t vend_field_size = 64);
+    BootP(const uint8_t* buffer, uint32_t total_sz, uint32_t vend_field_size = 64);
 
     /* Getters */
 
@@ -173,19 +173,19 @@ public:
      * \brief Getter for the sname field.
      * \return The sname field for this BootP PDU.
      */
-    const uint8_t *sname() const { return bootp_.sname; }
+    const uint8_t* sname() const { return bootp_.sname; }
 
     /** 
      * \brief Getter for the file field.
      * \return The file field for this BootP PDU.
      */
-    const uint8_t *file() const { return bootp_.file; }
+    const uint8_t* file() const { return bootp_.file; }
 
     /** 
      * \brief Getter for the vend field.
      * \return The vend field for this BootP PDU.
      */
-    const vend_type &vend() const { return vend_; }
+    const vend_type& vend() const { return vend_; }
 
     /** 
      * \brief Getter for the header size.
@@ -269,13 +269,13 @@ public:
     template<size_t n>
     void chaddr(const HWAddress<n> &new_chaddr) {
         // Copy the new addr
-        uint8_t *end = std::copy(
+        uint8_t* end = std::copy(
             new_chaddr.begin(), 
             new_chaddr.begin() + std::min(n, sizeof(bootp_.chaddr)), 
             bootp_.chaddr
         );
         // Fill what's left with zeros
-        if(end < bootp_.chaddr + chaddr_type::address_size) {
+        if (end < bootp_.chaddr + chaddr_type::address_size) {
             std::fill(end, bootp_.chaddr + chaddr_type::address_size, 0);
         }
     }
@@ -284,19 +284,19 @@ public:
      * \brief Setter for the sname field.
      * \param new_sname The sname to be set.
      */
-    void sname(const uint8_t *new_sname);
+    void sname(const uint8_t* new_sname);
 
     /** 
      * \brief Setter for the file field.
      * \param new_file The file to be set.
      */
-    void file(const uint8_t *new_file);
+    void file(const uint8_t* new_file);
 
     /** 
      * \brief Setter for the vend field.
      * \param newvend_ The vend to be set.
      */
-    void vend(const vend_type &newvend_);
+    void vend(const vend_type& newvend_);
 
     /**
      * \brief Check wether ptr points to a valid response for this PDU.
@@ -307,7 +307,7 @@ public:
      * \param ptr The pointer to the buffer.
      * \param total_sz The size of the buffer.
      */
-    bool matches_response(const uint8_t *ptr, uint32_t total_sz) const;
+    bool matches_response(const uint8_t* ptr, uint32_t total_sz) const;
 
     /**
      * \brief Getter for the PDU's type.
@@ -330,9 +330,9 @@ protected:
      * 
      * \return The vend field for this BootP PDU.
      */
-    vend_type &vend() { return vend_; }
+    vend_type& vend() { return vend_; }
 
-    void write_serialization(uint8_t *buffer, uint32_t total_sz, const PDU *parent);
+    void write_serialization(uint8_t* buffer, uint32_t total_sz, const PDU *parent);
 private:
     /**
      * Struct that represents the Bootp datagram.
@@ -361,4 +361,4 @@ private:
 
 } // Tins
 
-#endif // TINSbootp__H
+#endif // TINS_BOOTP_H

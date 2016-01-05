@@ -36,6 +36,7 @@
 #include "small_uint.h"
 
 namespace Tins {
+
 /**
  * \class Dot1Q
  * Represents an IEEE 802.1q PDU.
@@ -87,7 +88,7 @@ public:
      * \return The stored priority field value.
      */
     small_uint<3> priority() const {
-        return _header.priority;
+        return header_.priority;
     }
 
     /**
@@ -95,7 +96,7 @@ public:
      * \return The stored CFI field value.
      */
     small_uint<1> cfi() const {
-        return _header.cfi;
+        return header_.cfi;
     }
 
     /**
@@ -104,9 +105,9 @@ public:
      */
     small_uint<12> id() const {
         #if TINS_IS_LITTLE_ENDIAN
-            return _header.idL | (_header.idH << 8);
+            return header_.idL | (header_.idH << 8);
         #else
-            return _header.id;
+            return header_.id;
         #endif
     }
 
@@ -115,14 +116,16 @@ public:
      * \return The stored type field value.
      */
     uint16_t payload_type() const {
-        return Endian::be_to_host(_header.type);
+        return Endian::be_to_host(header_.type);
     }
 
     /**
      * \brief Getter for the PDU's type.
      * \sa PDU::pdu_type
      */
-    PDUType pdu_type() const { return pdu_flag; }
+    PDUType pdu_type() const {
+        return pdu_flag;
+    }
     
     /**
      * \sa PDU::clone
@@ -136,7 +139,7 @@ public:
      * appended at the end of this packet.
      */
     bool append_padding() const {
-        return _append_padding;
+        return append_padding_;
     }
 
     // Setters
@@ -206,8 +209,8 @@ private:
     
     static uint16_t get_id(const dot1q_hdr *hdr);
     
-    dot1q_hdr _header;
-    bool _append_padding;
+    dot1q_hdr header_;
+    bool append_padding_;
 };
 }
 

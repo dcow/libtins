@@ -37,6 +37,7 @@
 #include "ip_address.h"
 
 namespace Tins {
+
 /** 
  * \cond
  */
@@ -50,8 +51,7 @@ public:
 
     template<typename T>
     IPv4Fragment(T *pdu, uint16_t offset)
-    : payload_(pdu->serialize()), offset_(offset) 
-    {
+    : payload_(pdu->serialize()), offset_(offset) {
         
     }
     
@@ -73,17 +73,17 @@ public:
     
     void add_fragment(IP *ip);
     bool is_complete() const;
-    PDU *allocate_pdu() const;
+    PDU* allocate_pdu() const;
 private:
     typedef std::vector<IPv4Fragment> fragments_type;
     
     uint16_t extract_offset(const IP *ip);
     bool extract_more_frag(const IP *ip);
 
-    fragments_type fragments;
-    bool received_end;
-    uint8_t transport_proto;
-    size_t received_size, total_size;
+    fragments_type fragments_;
+    bool received_end_;
+    uint8_t transport_proto_;
+    size_t received_size_, total_size_;
 };
 } // namespace Internals
 
@@ -160,8 +160,8 @@ private:
     key_type make_key(const IP *ip) const;
     address_pair make_address_pair(IPv4Address addr1, IPv4Address addr2) const;
     
-    streams_type streams;
-    overlapping_technique technique;
+    streams_type streams_;
+    overlapping_technique technique_;
 };
 
 /**
@@ -176,8 +176,7 @@ public:
      * \param func The functor object.
      */
     IPv4ReassemblerProxy(Functor func)
-    : functor_(func)
-    {
+    : functor_(func) {
 
     }
 
@@ -191,13 +190,13 @@ public:
      */
     bool operator()(PDU &pdu) {
         // Forward it unless it's fragmented.
-        if(reassembler.process(pdu) != IPv4Reassembler::FRAGMENTED)
+        if(reassembler_.process(pdu) != IPv4Reassembler::FRAGMENTED)
             return functor_(pdu);
         else
             return true;
     }
 private:
-    IPv4Reassembler reassembler;
+    IPv4Reassembler reassembler_;
     Functor functor_;
 };
 

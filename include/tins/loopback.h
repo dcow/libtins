@@ -34,6 +34,10 @@
 #include "macros.h"
 
 namespace Tins {
+
+/**
+ * \brief Represents a Loopback PDU
+ */
 class TINS_API Loopback : public PDU {
 public:
     /**
@@ -67,7 +71,9 @@ public:
      * \brief Getter for the family identifier.
      * \return The stored family identifier.
      */
-    uint32_t family() const { return _family; }
+    uint32_t family() const {
+        return family_;
+    }
     
     /**
      * \brief Setter for the family identifier.
@@ -84,7 +90,9 @@ public:
      * \brief Getter for the PDU's type.
      * \sa PDU::pdu_type
      */
-    PDUType pdu_type() const { return pdu_flag; }
+    PDUType pdu_type() const {
+        return pdu_flag;
+    }
     
     /** 
      * \brief Check wether ptr points to a valid response for this PDU.
@@ -111,8 +119,9 @@ public:
 private:
     void write_serialization(uint8_t *buffer, uint32_t total_sz, const PDU *parent);
 
-    uint32_t _family;
+    uint32_t family_;
 };
-}
+
+} // Tins
 
 #endif // TINS_LOOPBACK_H

@@ -103,7 +103,7 @@ public:
      * \return bool indicating whether this address equals rhs.
      */
     bool operator==(const IPv4Address &rhs) const {
-        return ip_addr == rhs.ip_addr;
+        return ip_addr_ == rhs.ip_addr_;
     }
     
     /**
@@ -124,7 +124,7 @@ public:
      * \return bool indicating whether this address is less-than rhs.
      */
     bool operator< (const IPv4Address &rhs) const {
-        return ip_addr < rhs.ip_addr;
+        return ip_addr_ < rhs.ip_addr_;
     }
     
     /**
@@ -180,7 +180,7 @@ public:
 private:
     uint32_t ip_to_int(const char* ip);
 
-    uint32_t ip_addr;
+    uint32_t ip_addr_;
 };
 } //namespace Tins
 

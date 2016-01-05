@@ -43,16 +43,6 @@ namespace Tins {
  */
 class TINS_API IPv6Address {
 public:
-    /**
-     * The exception thrown when a malformed address is parsed.
-     */
-    class malformed_address : public std::exception {
-    public:
-        const char *what() const throw() {
-            return "Malformed address";
-        }
-    };
-    
     static const size_t address_size = 16;
     
     /**
@@ -105,21 +95,21 @@ public:
      * Returns an iterator to the beginning of this address.
      */
     iterator begin() {
-        return address;
+        return address_;
     }
     
     /**
      * Returns a const iterator to the beginning of this address.
      */
     const_iterator begin() const {
-        return address;
+        return address_;
     }
     
     /**
      * Returns an iterator to the one-past-the-end element of this address.
      */
     iterator end() {
-        return address + address_size;
+        return address_ + address_size;
     }
     
     /**
@@ -127,7 +117,7 @@ public:
      * address.
      */
     const_iterator end() const {
-        return address + address_size;
+        return address_ + address_size;
     }
     
     /**
@@ -138,7 +128,7 @@ public:
      * \return bool indicating whether addresses are equal.
      */
     bool operator==(const IPv6Address &rhs) const {
-        return std::equal(begin(), end(), rhs.address);
+        return std::equal(begin(), end(), rhs.address_);
     }
     
     /**
@@ -212,7 +202,7 @@ public:
 private:
     void init(const char *addr);
 
-    uint8_t address[address_size];
+    uint8_t address_[address_size];
 };
 } //namespace Tins
 

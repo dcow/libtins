@@ -88,8 +88,8 @@ public:
      */
     ARP(ipaddress_type target_ip = ipaddress_type(), 
         ipaddress_type sender_ip = ipaddress_type(), 
-        const hwaddress_type &target_hw = hwaddress_type(), 
-        const hwaddress_type &sender_hw = hwaddress_type());
+        const hwaddress_type& target_hw = hwaddress_type(), 
+        const hwaddress_type& sender_hw = hwaddress_type());
 
     /**
      * \brief Constructs an ARP object from a buffer.
@@ -103,7 +103,7 @@ public:
      * \param buffer The buffer from which this PDU will be constructed.
      * \param total_sz The total size of the buffer.
      */
-    ARP(const uint8_t *buffer, uint32_t total_sz);
+    ARP(const uint8_t* buffer, uint32_t total_sz);
 
     /* Getters */
     /**
@@ -201,7 +201,7 @@ public:
      *
      * \param address The new sender hardware address.
      */
-    void sender_hw_addr(const hwaddress_type &address);
+    void sender_hw_addr(const hwaddress_type& address);
 
     /**
      * \brief Setter for the sender's IP address.
@@ -215,7 +215,7 @@ public:
      *
      * \param address The new target hardware address.
      */
-    void target_hw_addr(const hwaddress_type &address);
+    void target_hw_addr(const hwaddress_type& address);
 
     /**
      * \brief Setter for the target's IP address.
@@ -278,7 +278,7 @@ public:
      */
     static EthernetII make_arp_request(ipaddress_type target, 
                                        ipaddress_type sender, 
-                                       const hwaddress_type &hw_snd = hwaddress_type());
+                                       const hwaddress_type& hw_snd = hwaddress_type());
 
     /**
      * \brief Creates an ARP Reply within an EthernetII PDU.
@@ -294,8 +294,8 @@ public:
      */
     static EthernetII make_arp_reply(ipaddress_type target, 
                                      ipaddress_type sender, 
-                                     const hwaddress_type &hw_tgt = hwaddress_type(), 
-                                     const hwaddress_type &hw_snd = hwaddress_type());
+                                     const hwaddress_type& hw_tgt = hwaddress_type(), 
+                                     const hwaddress_type& hw_snd = hwaddress_type());
 
     /** 
      * \brief Check wether ptr points to a valid response for this PDU.
@@ -304,12 +304,12 @@ public:
      * \param ptr The pointer to the buffer.
      * \param total_sz The size of the buffer.
      */
-    bool matches_response(const uint8_t *ptr, uint32_t total_sz) const;
+    bool matches_response(const uint8_t* ptr, uint32_t total_sz) const;
     
     /**
      * \sa PDU::clone
      */
-    ARP *clone() const {
+    ARP* clone() const {
         return new ARP(*this);
     }
 private:
@@ -326,7 +326,7 @@ private:
         uint32_t target_ip_address;
     } TINS_END_PACK;
 
-    void write_serialization(uint8_t *buffer, uint32_t total_sz, const PDU *parent);
+    void write_serialization(uint8_t* buffer, uint32_t total_sz, const PDU *parent);
 
     arp_header header_;
 };
